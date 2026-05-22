@@ -66,4 +66,4 @@ async def to_code(config):
     # Note: SPI is standard Arduino library
     # ITHO-Lib is pulled from GitHub during compilation
     cg.add_library("SPI", None)
-    cg.add_library("https://github.com/jodur/ITHO-Lib#NewLib", None)
+    cg.add_library("https://github.com/yazdanv/ITHO-Lib#NewLib", None)
