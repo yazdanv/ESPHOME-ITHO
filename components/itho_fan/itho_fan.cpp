@@ -102,8 +102,9 @@ void IthoFanHub::add_remote_id(const std::string &id, const std::string &room_na
 }
 
 void IthoFanHub::send_command(uint8_t command) {
-  noInterrupts();
-  
+  // Do NOT call noInterrupts() here. sendCommand() loops sendTries×delay(40 ms)
+  // = ~120 ms with interrupts disabled, which kills the FreeRTOS IWDT on ESP32-C3.
+  // The CC1101 manages TX/RX state internally; global interrupt disabling is unnecessary.
   switch (command) {
     case 1:
       rf_.sendCommand(IthoLow);
@@ -135,7 +136,6 @@ void IthoFanHub::send_command(uint8_t command) {
       break;
   }
   
-  interrupts();
   rf_.initReceive();
   
   if (fan_ != nullptr) {
@@ -144,17 +144,13 @@ void IthoFanHub::send_command(uint8_t command) {
 }
 
 void IthoFanHub::send_join() {
-  noInterrupts();
   rf_.sendCommand(IthoJoin);
-  interrupts();
   rf_.initReceive();
   ESP_LOGI(TAG, "Join command sent");
 }
 
 void IthoFanHub::send_leave() {
-  noInterrupts();
   rf_.sendCommand(IthoLeave);
-  interrupts();
   rf_.initReceive();
   ESP_LOGI(TAG, "Leave command sent");
 }
