@@ -215,8 +215,8 @@ int IthoFanHub::get_remote_index(const std::string &id) {
 }
 
 void IthoFanHub::process_packet() {
-  noInterrupts();
-  
+  // Do NOT call noInterrupts() here: checkForNewPacket() calls delay(1) internally
+  // (to feed the IWDT), which cannot yield with global interrupts disabled.
   if (rf_.checkForNewPacket()) {
     IthoCommand cmd = rf_.getLastCommand();
     String id_str = rf_.getLastIDstr();
@@ -301,8 +301,6 @@ void IthoFanHub::process_packet() {
       ESP_LOGV(TAG, "Ignored device-id: %s", id.c_str());
     }
   }
-  
-  interrupts();
 }
 
 // IthoFan Implementation
